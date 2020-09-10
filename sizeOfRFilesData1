@@ -1,0 +1,118 @@
+import sys
+is_valid = ["-h","-o","-e","-8n","-idk","-c","-4i"]
+msg_valid = "\nThe valid options for this program are:\n\t-h (help)\n\t-o (valid options)\n\t-e (exit)\n\t-8n for 8 byte numeric data\n\t-4i for 4 byte integer data\n\t-c for characters\n\t-idk if you need help selecting a datatype\n"
+msg_int_invalid = "\nPlease only select a valid integer as listed above, without periods, letters or any other character.\n"
+all_invalid = "\nYou have selected in invalid option.\nPlease select a valid option.\nIf you do not know the valid options, press -o and one will be assigned to you.\n"
+initial_msg = "\nPlease identify the largest data type for the file.\nPress -h for help, -o to see valid options, -e to exit.\n"
+successful_calc_msg = "\nWould you like to run another calculation (Y), or press -e to exit.\n"
+
+def calculate_approximate_memory(data_bytes):
+    rows = input("\nHow many rows are in the data file?\n")
+    try:
+        int_rows = int(rows)
+
+    except:
+        print("\nCannot convert to integer\n")
+        rows = input(msg_int_invalid)
+    columns = input("\nHow many columns are in the data file?\n")
+    try:
+        int_columns = int(columns)
+
+    except:
+        print("\nCannot convert to integer\n")
+        columns = input(msg_int_invalid)
+    try:
+        int_data_bytes = int(data_bytes)
+    except:
+        print("\nSomehow the data size was passed as something other than a number.\nPlease enter again as a number 0-9 on the keyboard, and NOTHING ELSE.\n")
+        calculate_approximate_memory(input())
+    #This is the *actual* calculation.
+    #Rule of thumb is the amount of memory needed to read in for R datasets is
+    #twice the size of the dataset sitting in memory. So size doubles the calculation.
+    size = (int_rows * int_columns * int(data_bytes))/(2**20)*2
+
+    print("Your estimated R file size is: ",size," MB")
+    query_exit()
+def query_exit():
+    response4 = input(successful_calc_msg)
+    if response4 == "Y":
+        get_input("-o")
+    else:
+        print(all_invalid)
+        query_exit()
+
+def evaluate_for_char():
+    print("\nThe data is probably characters, at 1 bytes per character value.")
+    longest_character = input("\nWhat is the longest string in the dataset?\n")
+    calculate_approximate_memory(longest_character)
+
+def evaluate_for_options(nxt_input):
+    if nxt_input == '-h':
+        evaluate_for_help()
+    elif nxt_input == '-o':
+        print(msg_valid)
+        get_input(input(initial_msg))
+    elif nxt_input == '-e':
+        evaluate_for_exit()
+    elif nxt_input == '-8n':
+        calculate_approximate_memory(8)
+    elif nxt_input == '-idk':
+        walkthrough_data_types()
+    elif nxt_input == '-4i':
+        calculate_approximate_memory(4)
+    elif nxt_input == '-c':
+        evaluate_for_char()
+    else:
+        print("not a current valid options, how did it get here?")
+        command = input(all_invalid)
+        get_input(command)
+
+def walkthrough_data_types():
+    print("\nByte encoding information from: https://www.stat.auckland.ac.nz/~paul/ItDT/HTML/node76.html")
+    response1 = input("Is there a decimal place, a negative number, or anything else that coerces to a numeric?\nThis includes long integers and floats. Y/n\n")
+    if response1 == 'Y':
+        print("\nThe size of all data from your dataset is 8 bytes per entry.\nThis may be an overreaction but is a good upper bound.\n")
+        print("\nStarting calculation with 8 bytes per entry\n")
+        calculate_approximate_memory(8)
+    elif response1 == 'n':
+        response2 = input("Are there any numbers at all? Y/n")
+        if response2 == 'Y':
+            print("\nThe size of all data from your dataset is 4 bytes per entry.\nThis may be an overreaction but is a good upper bound.\n")
+            calculate_approximate_memory(4)
+        elif response2 == 'n':
+            evaluate_for_char()
+        else:
+            print(all_invalid)
+            print("\n")
+            walkthrough_data_types()
+    else:
+        print(all_invalid)
+        print("\n")
+        walkthrough_data_types()
+def evaluate_for_help():
+
+        nc = input("\n\nPlease select from the following options:\n1. I'm not sure what command line option to use\n2. I'm not sure what the biggest data type is\n")
+        print(type(nc))
+        if nc == "1":
+            evaluate_for_options("-o")
+        elif nc == "2":
+            walkthrough_data_types()
+        else:
+            print(msg_int_invalid)
+
+def evaluate_for_exit():
+    response = input("\nDo you want to exit this program? Y/n")
+    if response == "Y":
+        sys.exit()
+
+def get_input(nxt_input):
+
+    if nxt_input in is_valid:
+        evaluate_for_options(nxt_input)
+    else:
+        print(all_invalid)
+        print(nxt_input)
+        command = input(msg_valid)
+        get_input(command)
+command = input(initial_msg)
+get_input(command)
