@@ -43,6 +43,7 @@ def calculate_approximate_memory(data_bytes):
     except:
         print("\nSomehow the data size was passed as something other than a number.\nPlease enter again as a number 0-9 on the keyboard, and NOTHING ELSE.\n")
         calculate_approximate_memory(input())
+
     #This is the *actual* calculation.
     #Rule of thumb is the amount of memory needed to read in for R datasets is
     #twice the size of the dataset sitting in memory. So size doubles the calculation.
@@ -67,12 +68,28 @@ def query_exit():
 
 
 def evaluate_for_char():
+    '''
+    Calculates the size of a string based on the size of a character being one
+    byte.
+
+    I'm assuming that the longest string is relatively easy to find. Further
+    development would calculate this. Also, based on the R documentation, a
+    character is stored as one byte. I need to verify this more rigorously since
+    it would make an integer (4 bytes) larger than a character (1 byte).
+    '''
     print("\nThe data is probably characters, at 1 bytes per character value.")
     longest_character = input("\nWhat is the longest string in the dataset?\n")
     calculate_approximate_memory(longest_character)
 
 
 def evaluate_for_options(nxt_input):
+    '''
+    Evaluates input and directs to appropriate function.
+
+    I don't like switch statements usually. This could have been written as a
+    switch but at least in python there isn't a large computational difference
+    and I prefer the nomenclature (if, elif, else) rather than (case).
+    '''
     if nxt_input == '-h':
         evaluate_for_help()
     elif nxt_input == '-o':
@@ -95,16 +112,27 @@ def evaluate_for_options(nxt_input):
 
 
 def walkthrough_data_types():
-    print("\nByte encoding information from: https://www.stat.auckland.ac.nz/~paul/ItDT/HTML/node76.html")
-    response1 = input("Is there a decimal place, a negative number, or anything else that coerces to a numeric?\nThis includes long integers and floats. Y/n\n")
+    '''
+    Helps the user decide what datatype is being used in the csv file.
+
+    Note that there are two situations where the function calls itself. Both
+    are meant to alert the user that they are entering invalid input.
+    '''
+    print("\nByte encoding information from:"
+         +"https://www.stat.auckland.ac.nz/~paul/ItDT/HTML/node76.html")
+    response1 = input("Is there a decimal place, a negative number, or anything"
+                     +"else that coerces to a numeric?\nThis includes long"
+                     +"integers and floats. Y/n\n")
     if response1 == 'Y':
-        print("\nThe size of all data from your dataset is 8 bytes per entry.\nThis may be an overreaction but is a good upper bound.\n")
+        print("\nThe size of all data from your dataset is 8 bytes per entry."
+             +"\nThis may be an overreaction but is a good upper bound.\n")
         print("\nStarting calculation with 8 bytes per entry\n")
         calculate_approximate_memory(8)
     elif response1 == 'n':
         response2 = input("Are there any numbers at all? Y/n")
         if response2 == 'Y':
-            print("\nThe size of all data from your dataset is 4 bytes per entry.\nThis may be an overreaction but is a good upper bound.\n")
+            print("\nThe size of all data from your dataset is 4 bytes per"
+                 +"entry.\nThis may be an overreaction but is a good upper bound.\n")
             calculate_approximate_memory(4)
         elif response2 == 'n':
             evaluate_for_char()
@@ -119,21 +147,25 @@ def walkthrough_data_types():
 
 
 def evaluate_for_help():
-        nc = input("\n\nPlease select from the following options:\n1. I'm not sure what command line option to use\n2. I'm not sure what the biggest data type is\n")
-        print(type(nc))
-        if nc == "1":
-            evaluate_for_options("-o")
-        elif nc == "2":
-            walkthrough_data_types()
-        else:
-            print(MSG_INT_INVALID)
-            get_input(INITIAL_MSG)
+
+    nc = input("\n\nPlease select from the following options:"
+              +"\n1. I'm not sure what command line option to use"
+              +"\n2. I'm not sure what the biggest data type is\n")
+    if nc == "1":
+        evaluate_for_options("-o")
+    elif nc == "2":
+        walkthrough_data_types()
+    else:
+        print(MSG_INT_INVALID)
+        get_input(INITIAL_MSG)
 
 
 def evaluate_for_exit():
     response = input("\nDo you want to exit this program? Y/n")
     if response == "Y":
         sys.exit()
+    if response == 'n':
+        get_input("-o")
     else:
         get_input("-o")
 
