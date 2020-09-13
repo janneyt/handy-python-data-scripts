@@ -54,11 +54,13 @@ def calculate_approximate_memory(data_bytes):
 
 def query_exit():
     '''
-
+    Queries if user wants to calculate the size of other files, and failing
     '''
     response4 = input(SCFL_CALC_MSG)
     if response4 == "Y":
         get_input("-o")
+    elif response4 == "n":
+        evaluate_for_exit()
     else:
         print(ALL_INVALID)
         query_exit()
