@@ -147,7 +147,9 @@ def walkthrough_data_types():
 
 
 def evaluate_for_help():
-
+    '''
+    Evaluates input to help user to decide what type of help they need.
+    '''
     nc = input("\n\nPlease select from the following options:"
               +"\n1. I'm not sure what command line option to use"
               +"\n2. I'm not sure what the biggest data type is\n")
@@ -161,6 +163,9 @@ def evaluate_for_help():
 
 
 def evaluate_for_exit():
+    '''
+    Confirms user really wants to exit program, then exits or not as appropriate.
+    '''
     response = input("\nDo you want to exit this program? Y/n")
     if response == "Y":
         sys.exit()
@@ -171,11 +176,13 @@ def evaluate_for_exit():
 
 
 def get_input(nxt_input):
+    '''
+    Gets input from the user and makes sure it is valid.
+    '''
     if nxt_input in IS_VALID:
         evaluate_for_options(nxt_input)
     else:
         print(ALL_INVALID)
-        print(nxt_input)
         command = input(MSG_VALID)
         get_input(command)
 
