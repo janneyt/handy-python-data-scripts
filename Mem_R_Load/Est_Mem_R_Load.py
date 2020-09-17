@@ -35,5 +35,13 @@ def strip_input(init_input):
     that you need carefully inputted.
 
     '''
-    print(repr(init_input))
-    return init_input
+
+    '''
+    Strip off trailing controlling character.
+    '''
+    spaces_input = init_input.strip()
+    raw_input = repr(spaces_input)
+    stripped_input = raw_input.strip()
+    no_quotes_input = stripped_input.strip("''")
+    no_car_input = no_quotes_input.strip('\r')
+    return no_car_input
