@@ -11,8 +11,8 @@ MSG_INT_INVALID = ("\n\nPlease only select a valid integer as listed above,"
 ALL_INVALID = ("\n\nYou have selected in invalid option.\nPlease select a valid"
                  +"option.\nIf you do not know the valid options, press -o and"
                  +"one will be assigned to you.\n")
-INITIAL_MSG = ("\n\nPlease identify the largest data type for the file.\nPress"
-                 +"-h for help, -o to see valid options, -e to exit.\n")
+INITIAL_MSG = ("\n\nPlease identify the largest data type for the file.\n"
+              +MSG_VALID)
 SCFL_CALC_MSG = ("\n\nWould you like to run another calculation (Y),"
                  +"or press -e to exit.\n")
 
@@ -25,6 +25,27 @@ NOT_AN_INT = ("\n\nYou attempted a command line argument that was not an int."
              + str(sys.maxsize)+"\n")
 
 ESCAPE_SEQUENCES = ['\\x07',"'",'"','\\\\',"\\'",'\\x08','\\x0c','\\n','\\r','\\t']
+
+MSG_REENTER = "\nSomething went wrong. Please reenter a valid option. Press -o for options.\n"
+
+TITLE = "R Memory Estimator"
+MESSAGE = "\nUse with caution.\n"
+
+
+LOADING_SCREEN = ("\n\n\n"
+                +TITLE
+                +"\n\n\n"
+                +MESSAGE
+                +"\n\n\n")
+
+'''
+################################################################################
+Loading Screen Functions
+################################################################################
+'''
+def loading_screen(message):
+    return (LOADING_SCREEN + message + "\n\n\n")
+
 
 '''
 ################################################################################
@@ -55,12 +76,13 @@ def get_input(nxt_input):
     '''
     try:
         str(nxt_input)
-        if nxt_input in IS_VALID:
-            evaluate_for_options(nxt_input)
+        valid_input = strip_input(nxt_input)
+        if valid_input in IS_VALID:
+            return evaluate_for_options(nxt_input)
         else:
             print(ALL_INVALID)
             command = input(MSG_VALID)
-            get_input(command)
+            return get_input(command)
     except Exception as e:
         print(e)
         print(NOT_A_STRING)
@@ -113,29 +135,42 @@ def strip_input(init_input):
 def recursive_remove_escape(func_input, esc_seq):
     '''
     Removes escape characters from an input.
+
+    This was designed to make the strip_input function functional and recursive.
+
+    Exceptions: The inputs need to be strings. This should be tested earlier but
+    in case it wasn't, this is an attempt to right that wrong.
+
+    This should be useful for stripping any input function of escape characters.
     '''
 
+    try:
+        str(func_input)
+        str(esc_seq)
+        if esc_seq == None:
+            return func_input
+        elif func_input:
+            if esc_seq in ESCAPE_SEQUENCES:
+                counter = ESCAPE_SEQUENCES.index(esc_seq)
+                if esc_seq != ESCAPE_SEQUENCES[-1]:
 
-    if esc_seq == None:
-        return func_input
-    elif func_input:
-        if esc_seq in ESCAPE_SEQUENCES:
-            counter = ESCAPE_SEQUENCES.index(esc_seq)
-            if esc_seq != ESCAPE_SEQUENCES[-1]:
-                print("unstripped output", func_input)
-                stripped_output = func_input.strip(esc_seq)
-                print("stripped output", stripped_output)
-                return recursive_remove_escape(stripped_output, ESCAPE_SEQUENCES[counter+1] )
-            elif esc_seq == ESCAPE_SEQUENCES[-1]:
-                stripped_output = func_input.strip(esc_seq)
-                return recursive_remove_escape(stripped_output, None)
-        elif esc_seq not in ESCAPE_SEQUENCES:
-            return recursive_remove_escape(func_input, ESCAPE_SEQUENCES[0])
-    else:
-        if func_input:
-            recursive_remove_escape(func_input, None)
+                     stripped_output = func_input.strip(esc_seq)
+
+                     return recursive_remove_escape(stripped_output, ESCAPE_SEQUENCES[counter+1] )
+                elif esc_seq == ESCAPE_SEQUENCES[-1]:
+                     stripped_output = func_input.strip(esc_seq)
+                     return recursive_remove_escape(stripped_output, None)
+            elif esc_seq not in ESCAPE_SEQUENCES:
+                return recursive_remove_escape(func_input, ESCAPE_SEQUENCES[0])
         else:
-            print("Something is really messed up, func_input somehow is none")
+            if func_input:
+                recursive_remove_escape(func_input, None)
+            else:
+                print("Something is really messed up, func_input somehow is none")
+    except Exception as e:
+        print(e)
+        print(NOT_A_STRING)
+        get_input(INITIAL_MSG)
 
 '''
 ################################################################################
@@ -248,8 +283,7 @@ def evaluate_for_options(nxt_input):
     so it shouldn't be used elsewhere.
 
     '''
-    print(str(nxt_input))
-
+    return LOADING_SCREEN
     '''
     try:
         str(nxt_input)
@@ -273,6 +307,7 @@ def evaluate_for_options(nxt_input):
             print("\nNot a currently valid option, how did it get here?\n")
             print("\nDeficient input is: \n")
             print(nxt_input)
+            print(All_INVALID)
             command = input(ALL_INVALID)
             get_input(command)
     except Exception as e:
@@ -379,7 +414,5 @@ def calculate_approximate_memory(data_bytes):
     query_exit()
 
 
-
-
-command = input(INITIAL_MSG)
+command = input(loading_screen(INITIAL_MSG))
 get_input(command)
